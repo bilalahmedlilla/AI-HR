@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { evaluateAnswer } from "@/lib/ai";
+import { saveAudioFile } from "@/lib/storage";
 
 export async function POST(
   request: NextRequest,
@@ -9,7 +10,29 @@ export async function POST(
   const { id } = await params;
   const interviewId = parseInt(id);
 
-  const { questionId, answerText } = await request.json();
+  const contentType = request.headers.get("content-type") || "";
+
+  let questionId: number;
+  let answerText: string;
+  let audioUrl: string | undefined;
+  let voiceDuration: number | undefined;
+
+  if (contentType.includes("multipart/form-data")) {
+    const formData = await request.formData();
+    questionId = parseInt(formData.get("questionId") as string);
+    answerText = (formData.get("answerText") as string) || "";
+    voiceDuration = parseInt(formData.get("duration") as string) || undefined;
+
+    const audioFile = formData.get("audioFile") as File | null;
+    if (audioFile && audioFile.size > 0) {
+      const saved = await saveAudioFile(audioFile, interviewId, questionId);
+      audioUrl = saved.url;
+    }
+  } else {
+    const body = await request.json();
+    questionId = body.questionId;
+    answerText = body.answerText;
+  }
 
   // Verify question belongs to this interview
   const question = await prisma.question.findFirst({
@@ -36,6 +59,8 @@ export async function POST(
       answerText,
       score: evaluation.score,
       feedback: evaluation.feedback,
+      audioUrl,
+      voiceDuration,
     },
   });
 
@@ -49,5 +74,7 @@ export async function POST(
     id: answer.id,
     score: evaluation.score,
     feedback: evaluation.feedback,
+    audioUrl,
+    voiceDuration,
   });
 }

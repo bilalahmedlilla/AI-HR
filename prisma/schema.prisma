@@ -69,6 +69,8 @@ model Answer {
   answerText      String
   score           Float?      // 0-100
   feedback        String?
+  audioUrl        String?     // path to recorded audio file
+  voiceDuration   Int?        // duration in seconds
   createdAt       DateTime    @default(now())
   question        Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
 

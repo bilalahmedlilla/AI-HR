@@ -48,6 +48,8 @@ export async function GET(
             answerText: q.answers[0].answerText,
             score: q.answers[0].score,
             feedback: q.answers[0].feedback,
+            audioUrl: q.answers[0].audioUrl,
+            voiceDuration: q.answers[0].voiceDuration,
           }
         : null,
     })),

@@ -120,6 +120,26 @@ export default function InterviewReviewPage({
 
             {q.answer ? (
               <div className="space-y-3">
+                {/* Audio playback */}
+                {(q.answer as any).audioUrl && (
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <p className="text-sm text-gray-500 mb-2 flex items-center gap-2">
+                      🎙️ Audio Response
+                      {(q.answer as any).voiceDuration && (
+                        <span className="text-xs text-gray-400">
+                          ({(q.answer as any).voiceDuration}s)
+                        </span>
+                      )}
+                    </p>
+                    <audio
+                      controls
+                      className="w-full max-w-md"
+                      src={(q.answer as any).audioUrl}
+                    >
+                      Your browser does not support audio playback.
+                    </audio>
+                  </div>
+                )}
                 <div className="rounded-lg bg-gray-50 p-4">
                   <p className="text-sm text-gray-500 mb-1">Answer:</p>
                   <p className="text-gray-800">{q.answer.answerText}</p>

@@ -17,7 +17,13 @@ export interface QuestionWithAnswer {
   subject: string | null;
   questionText: string;
   orderIndex: number;
-  answer: { answerText: string; score: number | null; feedback: string | null } | null;
+  answer: {
+    answerText: string;
+    score: number | null;
+    feedback: string | null;
+    audioUrl: string | null;
+    voiceDuration: number | null;
+  } | null;
 }
 
 export interface InterviewWithDetails {

@@ -17,7 +17,8 @@
 /.next/
 /out/
 
-# production
+# audio uploads
+/public/uploads/
 /build
 
 # misc
