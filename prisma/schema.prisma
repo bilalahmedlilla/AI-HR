@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id              Int               @id @default(autoincrement())
+  name            String
+  email           String            @unique
+  passwordHash    String  @default("")
+  sessionToken    String?           @unique
+  createdAt       DateTime          @default(now())
+  jobDescriptions JobDescription[]
+
+  @@index([email])
+  @@index([sessionToken])
+}
+
+model JobDescription {
+  id              Int         @id @default(autoincrement())
+  companyId       Int
+  title           String
+  description     String
+  requiredSkills  String      // JSON array of skills
+  experienceLevel String      // junior / mid / senior / lead
+  createdAt       DateTime    @default(now())
+  company         Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  interviews      Interview[]
+
+  @@index([companyId])
+}
+
+model Interview {
+  id               Int         @id @default(autoincrement())
+  jobDescriptionId Int
+  candidateName    String
+  candidateEmail   String
+  status           String      @default("pending") // pending / in_progress / completed
+  overallScore     Float?
+  createdAt        DateTime    @default(now())
+  completedAt      DateTime?
+  jobDescription   JobDescription @relation(fields: [jobDescriptionId], references: [id], onDelete: Cascade)
+  questions        Question[]
+
+  @@index([jobDescriptionId])
+  @@index([candidateEmail])
+}
+
+model Question {
+  id              Int         @id @default(autoincrement())
+  interviewId     Int
+  subject         String?     // mapped from the 19 subjects (e.g. "csharp-dotnet-core", "system-design")
+  questionText    String
+  orderIndex      Int
+  createdAt       DateTime    @default(now())
+  interview       Interview   @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  answers         Answer[]
+
+  @@index([interviewId])
+}
+
+model Answer {
+  id              Int         @id @default(autoincrement())
+  questionId      Int
+  answerText      String
+  score           Float?      // 0-100
+  feedback        String?
+  createdAt       DateTime    @default(now())
+  question        Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
